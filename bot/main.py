@@ -7,6 +7,11 @@ from telegram import Update, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import ContextTypes, ApplicationBuilder
 
 from bot.protected_handlers import *
+from telegram.ext import MessageHandler, filters
+from bot.handlers.user_tracker import track_user
+from bot.handlers.mention_all import mention_all
+from telegram.ext import ChatMemberHandler
+from bot.handlers.chat_member_tracker import track_chat_member
 
 app = FastAPI()
 
@@ -35,8 +40,29 @@ async def start_bot():
     global telegram_app
     telegram_app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
 
-    telegram_app.add_handler(ProtectedCommandHandler("start", start))
-    telegram_app.add_handler(ProtectedMessageHandler(filters.TEXT & ~filters.COMMAND, greet_again))
+    # telegram_app.add_handler(ProtectedCommandHandler("start", start))
+    # telegram_app.add_handler(ProtectedMessageHandler(filters.TEXT & ~filters.COMMAND, greet_again))
+
+
+    # Трекаем всех пользователей
+    telegram_app.add_handler(
+        MessageHandler(filters.ALL, track_user),
+        group=0
+    )
+
+    # Реакция на упоминание бота
+    telegram_app.add_handler(
+        MessageHandler(filters.TEXT & ~filters.COMMAND, mention_all),
+        group=1
+    )
+
+    telegram_app.add_handler(
+        ChatMemberHandler(
+            track_chat_member,
+            ChatMemberHandler.CHAT_MEMBER
+        ),
+        group=0
+    )
 
     # запуск в фоне
     await telegram_app.initialize()
