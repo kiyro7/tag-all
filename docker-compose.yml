@@ -1,0 +1,16 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    environment:
+      - RUN_MAIN=true
+    command: ["python", "-m", "uvicorn", "bot.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"

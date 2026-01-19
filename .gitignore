@@ -1,0 +1,8 @@
+/.idea/
+/.env
+/supervisord.log
+/bot/supervisord.log
+/bot/supervisord.pid
+/bot/__pycache__/
+/.pytest_cache/
+/tests/__pycache__/
